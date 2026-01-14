@@ -1,0 +1,40 @@
+{
+    "manifest_version": 3,
+    "name": "RecruitFlow",
+    "version": "3.0.0",
+    "description": "Smart LinkedIn Candidate Sourcing Tool",
+    "icons": {
+        "128": "R.png"
+    },
+    "permissions": [
+        "storage",
+        "tabs",
+        "identity",
+        "downloads"
+    ],
+    "host_permissions": [
+        "https://www.linkedin.com/*",
+        "https://testbackend.recruitcrafts.com/*"
+    ],
+    "background": {
+        "service_worker": "scripts/events.js"
+    },
+    "action": {
+        "default_title": "RecruitFlow"
+    },
+    "content_scripts": [
+        {
+            "matches": ["https://*.linkedin.com/*"],
+            "css": ["css/content.css"],
+            "js": [
+                "scripts/selectors.js",   
+                "scripts/content.js"
+            ], 
+            "type": "module"
+        }
+    ],
+    "web_accessible_resources": [{
+        "resources": ["config.json", "views/slider.html"],
+        "matches": ["<all_urls>"]
+    }]
+}

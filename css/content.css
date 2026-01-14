@@ -1,0 +1,156 @@
+/* Ana Panel Konumlandırması */
+#yale3_slider {
+    position: fixed !important;
+    z-index: 2147483647 !important; /* En üstte görünmesi için maksimum değer */
+    top: 0 !important;
+    right: 0 !important; /* Sağda sabitler */
+    width: 0; /* Başlangıçta kapalı */
+    height: 100vh !important;
+    background-color: #f8fafc;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    overflow-x: hidden; /* Genişlik 0 iken içeriğin taşmasını engeller */
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.15);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    display: block !important;
+}
+
+/* Header Tasarımı */
+#sheader {
+    background: linear-gradient(135deg, #0f172a 0%, #1e40af 100%);
+    padding: 25px 20px;
+    color: white;
+    text-align: center; 
+}
+
+#apptitle {
+    font-size: 26px; 
+    font-weight: 800;
+    display: block;
+    letter-spacing: -0.5px;
+    color: white !important;
+    margin-bottom: 5px;
+}
+
+#apptitle_caption {
+    font-size: 11px;
+    opacity: 0.8;
+    text-transform: uppercase;
+    color: white !important;
+}
+
+/* Profil Özeti Kartı */
+#profile_summary {
+    margin-top: 20px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    display: inline-flex; 
+    align-items: center;
+    gap: 10px;
+    min-width: 80%; 
+    justify-content: center;
+}
+
+#name_title {
+    font-weight: 600;
+    color: white !important;
+}
+
+/* Veri Kartları */
+.data-card {
+    background: white;
+    margin: 15px;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.data-card label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#yale3_slider textarea {
+    width: 100%;
+    min-height: 80px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 13px;
+    background: #fdfdfd;
+    color: #1e293b;
+    resize: vertical;
+    box-sizing: border-box; /* Padding'in genişliği bozmamasını sağlar */
+}
+
+/* Alt kısım (Footer) Konteynırı */
+#sfooter {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    padding: 20px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Tüm içeriği yatayda ortalar */
+    gap: 15px;
+}
+
+/* Kayıt Seçeneği (Dropdown) Konteynırı */
+.select-container {
+    width: 90%; /* Kenarlardan biraz boşluk bırakır */
+    display: flex;
+    justify-content: center;
+}
+
+.modern-select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    font-size: 13px;
+    cursor: pointer;
+    text-align: center;
+}
+
+/* Buton Grubu */
+.action-group {
+    display: flex;
+    justify-content: center; /* Butonları yan yana ortalar */
+    gap: 12px;
+    width: 100%;
+}
+
+/* Butonların Ortak Stili */
+.primary-btn, .secondary-btn {
+    flex: 0 1 140px; /* Butonların çok yayılmasını engeller, sabit bir genişlik eğilimi verir */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.primary-btn {
+    background: #2563eb;
+    color: white !important;
+    border: none;
+}
+
+.secondary-btn {
+    background: #f1f5f9;
+    color: #475569 !important;
+    border: 1px solid #cbd5e1;
+}
