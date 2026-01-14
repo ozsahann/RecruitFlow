@@ -1,19 +1,18 @@
 /* scripts/content.js */
+let allPositions = [];
 
-// showpageaction 
 const todoresp = {todo: "showPageAction"};
 chrome.runtime.sendMessage(todoresp);
 
-// Bekleme Fonksiyonu
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-// VERİLERİ YENİLEME FONKSİYONU
+// TÜM VERİLERİ VE POZİSYONLARI YENİLEME FONKSİYONU
 function refreshSliderData() {
-    console.log("RecruitFlow: Veriler tazeleniyor...");
+    console.log("RecruitFlow: Tüm veriler ve pozisyonlar tazeleniyor...");
     const basicProfileData = getBasicProfileSection();
     const expData = getExperienceSection();
 
-    // İsim alanını güncelle (Span olduğu için innerText/textContent gerekir)
+    // İsim alanını güncelle
     const nameLabel = document.getElementById("name_title");
     if (nameLabel) {
         nameLabel.textContent = basicProfileData.name || "İsim bulunamadı";
@@ -22,6 +21,71 @@ function refreshSliderData() {
     // Textarea alanlarını doldur
     injectDataintoTextArea("basicprofile", basicProfileData);
     injectDataintoTextArea("experiencetext", expData);
+    
+    // Pozisyon listesini API'den çek
+    loadPositionsIntoDropdown();
+}
+
+// POZİSYONLARI API'DEN ÇEKİP DROPDOWN'A DOLDURAN FONKSİYON
+function loadPositionsIntoDropdown() {
+    const positionSelect = document.getElementById("position_select");
+    const positionSearch = document.getElementById("position_search");
+    if (!positionSelect) return;
+
+    chrome.runtime.sendMessage({ type: "getPositions" }, (response) => {
+        if (response && response.success) {
+            // image_d49dcf.png'deki yapıya göre veriyi alıyoruz
+            allPositions = (response.data && response.data.data) ? response.data.data : [];
+            
+            // İlk açılışta tüm listeyi isimleriyle birlikte göster
+            renderPositions(allPositions);
+
+            // Arama barı aktifse filtreleme dinleyicisini ekle
+            if (positionSearch) {
+                positionSearch.addEventListener('input', (e) => {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const filtered = allPositions.filter(item => {
+                        const pos = item.companyPosition || item;
+                        // İsim (name) veya Başlık (title) üzerinden arama yapar
+                        const posName = (pos.name || pos.title || "").toLowerCase();
+                        return posName.includes(searchTerm);
+                    });
+                    renderPositions(filtered);
+                });
+            }
+        } else {
+            positionSelect.innerHTML = "<option value=''>❌ Liste Alınamadı</option>";
+        }
+    });
+}
+
+// Listeyi ekrana basan yardımcı fonksiyon
+function renderPositions(list) {
+    const positionSelect = document.getElementById("position_select");
+    if (!positionSelect) return;
+    
+    positionSelect.innerHTML = "";
+    
+    if (list.length === 0) {
+        positionSelect.innerHTML = "<option value=''>Sonuç bulunamadı</option>";
+        return;
+    }
+
+    list.forEach(item => {
+        // API yapısına göre pozisyon verisini alıyoruz
+        const pos = item.companyPosition || item;
+        
+        if (pos && pos.id) {
+            const option = document.createElement("option");
+            option.value = pos.id;
+            
+            // İstediğiniz format: Pozisyon İsmi#ID (Örn: Deneme ilan açıyorum#1139)
+            const posName = pos.name || pos.title || "Adsız Pozisyon";
+            option.textContent = `${posName}#${pos.id}`;
+            
+            positionSelect.appendChild(option);
+        }
+    });
 }
 
 function loadSlider() {
@@ -35,10 +99,10 @@ function loadSlider() {
             document.body.prepend(sliderContainer);
 
             setTimeout( () => {
-                // İlk açılışta verileri çek
+                // İlk açılışta verileri ve pozisyonları çek
                 refreshSliderData();
                 
-                // YENİLE BUTONU AKTİF ETME
+                // YENİLE BUTONU
                 const refreshButton = document.getElementById("refresh_profile_data_button");
                 if (refreshButton) {
                     refreshButton.addEventListener("click", () => {
@@ -78,32 +142,7 @@ function loadSlider() {
         }).catch(error => console.error("Slider yüklenemedi: ", error));
 }
 
-loadSlider();
-
-// Slider Aç/Kapa
-chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
-    if(msg.todo == "toggle") {
-       toggleSlider(); 
-    }
-});
-
-function toggleSlider() {
-    const slider = document.getElementById("yale3_slider");
-    const styler = slider.style;
-    styler.width = (styler.width === "0px" || !styler.width) ? "450px" : "0px";
-}
-
-// --- YARDIMCI FONKSİYONLAR ---
-
-function validateSelector(selectorGroup, baseNode=document) {
-    const results = {};
-    for( const [key, selector] of Object.entries(selectorGroup)) {
-        if (typeof selector !== "string") continue;
-        const element = baseNode.querySelector(selector);
-        results[key] = element ? true : false;
-    }
-    return results;
-}
+// --- YARDIMCI FONKSİYONLAR (Aynı Kalacak) ---
 
 function getBasicProfileSection() {
     const data = {};
@@ -137,7 +176,16 @@ function getExperienceSection() {
     return items;
 }
 
-// ELEMENT TÜRÜNE GÖRE VERİ GİRİŞİ (Fix: Hem span hem textarea destekler)
+function validateSelector(selectorGroup, baseNode=document) {
+    const results = {};
+    for( const [key, selector] of Object.entries(selectorGroup)) {
+        if (typeof selector !== "string") continue;
+        const element = baseNode.querySelector(selector);
+        results[key] = element ? true : false;
+    }
+    return results;
+}
+
 function injectDataintoTextArea(nodeId, data) {
     const element = document.getElementById(nodeId);
     if(element) {
@@ -170,20 +218,32 @@ async function scrapeContactInfoModal() {
 }
 
 async function saveProfileData(basicData, expData, contactInfo) {
-    let fullName = (basicData.name || "").trim();
-    let name = null, family = null;
-    if (fullName) {
-        const parts = fullName.split(" ");
-        family = parts.length > 1 ? parts.pop() : null;
-        name = parts.join(" ") || null;
-    }
     const cleanUrl = window.location.href.split('/overlay/')[0];
+    
+    // Seçilen Pozisyon ID'sini al
+    const posSelect = document.getElementById("position_select");
+    const selectedPosId = posSelect ? posSelect.value : null;
+
     const finalPayload = {
-        "Name": name, "Family": family,
+        "Name": (basicData.name || "").split(" ")[0] || null,
+        "Family": (basicData.name || "").split(" ").pop() || null,
         "Email": (contactInfo.email && contactInfo.email.trim() !== "") ? contactInfo.email : cleanUrl, 
-        "PhoneNumber": contactInfo.phone, "LinkedinUrl": cleanUrl,
+        "PhoneNumber": contactInfo.phone, 
+        "LinkedinUrl": cleanUrl,
         "Description": (basicData.about && basicData.about.trim() !== "") ? basicData.about : (basicData.headline || null),   
-        "CompanyPositionId": 724         
+        "CompanyPositionId": selectedPosId ? parseInt(selectedPosId) : 724         
     };
     chrome.runtime.sendMessage({ type: "downloadProfile", content: JSON.stringify(finalPayload) });
 }
+
+// Slider Aç/Kapa
+chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
+    if(msg.todo == "toggle") {
+        const slider = document.getElementById("yale3_slider");
+        if (slider) {
+            slider.style.width = (slider.style.width === "450px") ? "0px" : "450px";
+        }
+    }
+});
+
+loadSlider();

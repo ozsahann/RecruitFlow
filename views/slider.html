@@ -20,13 +20,14 @@
     </div>
 </div>
 
-<div id="sfooter">
-    <div class="select-container">
-        <select id="save_option_select" class="modern-select">
-            <option value="cloud">RecruitFlow Cloud</option>
-            <option value="local">Yerel Kayıt</option>
-        </select>
-    </div>
+<div class="data-card">
+    <label>🎯 Aday İçin Pozisyon Seç</label>
+    <input type="text" id="position_search" class="modern-input" placeholder="Pozisyon ismine göre ara..." style="margin-bottom: 8px;">
+    
+    <select id="position_select" class="modern-select" style="width: 100%;">
+        <option value="">Yükleniyor...</option>
+    </select>
+</div>
     
     <div class="action-group">
         <button id="refresh_profile_data_button" class="secondary-btn">
