@@ -18,7 +18,7 @@
 
 /* Header Tasarımı */
 #sheader {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    background: linear-gradient(135deg, #f97316 0%, #FE6601 100%);
     padding: 12px 20px;
     color: white;
     text-align: center;
@@ -146,7 +146,7 @@
 }
 
 .primary-btn {
-    background: #ea580c;
+    background: #FE6601;
     color: white !important;
     border: none;
 }

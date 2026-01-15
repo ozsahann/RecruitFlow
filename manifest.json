@@ -10,9 +10,12 @@
         "storage",
         "tabs",
         "identity",
-        "downloads"
+        "downloads",
+        "cookies",
+        "activeTab"
     ],
     "host_permissions": [
+        "https://testpanel.recruitcrafts.com/*",
         "https://www.linkedin.com/*",
         "https://testbackend.recruitcrafts.com/*"
     ],
